@@ -5,6 +5,8 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Cart from './components/Cart';
 import Orders from './components/Orders';
+import Header from './components/Header';
+import Footer from './components/Footer';
 import { AppBar, Toolbar, Button, Container, Dialog, Typography } from '@mui/material';
 import { useAuth } from './context/AuthContext';
 
@@ -14,6 +16,7 @@ function App() {
 
   return (
     <Router>
+      <Header />
       <AppBar position="static">
         <Toolbar>
           <Button color="inherit" component={Link} to="/">Каталог</Button>
@@ -45,6 +48,7 @@ function App() {
           </Button>
         </Dialog>
       </Container>
+      <Footer />
     </Router>
   );
 }

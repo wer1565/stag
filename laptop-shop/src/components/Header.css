@@ -1,0 +1,29 @@
+/* laptop-shop/src/components/Header.css */
+.app-header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+  text-align: center;
+}
+
+.app-header nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.app-header nav ul li {
+  margin: 0 15px;
+}
+
+.app-header nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.app-header nav ul li a:hover {
+  text-decoration: underline;
+} 
