@@ -5,6 +5,7 @@ import { Box, TextField, Button, Typography, Alert } from '@mui/material';
 const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
@@ -13,7 +14,7 @@ const Register = () => {
     setError('');
     setSuccess('');
     try {
-      await register(username, password);
+      await register(username, password, email);
       setSuccess('Регистрация успешна! Теперь вы можете войти.');
     } catch {
       setError('Ошибка регистрации');
@@ -27,6 +28,14 @@ const Register = () => {
         label="Логин"
         value={username}
         onChange={e => setUsername(e.target.value)}
+        fullWidth
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        label="Email"
+        type="email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
         fullWidth
         sx={{ mb: 2 }}
       />

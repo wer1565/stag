@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getOrders } from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { Typography, List, ListItem, ListItemText, Alert, Box } from '@mui/material';
+import '../css/Orders.css';
 
 const Orders = () => {
   const { token, user } = useAuth();

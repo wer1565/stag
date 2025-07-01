@@ -4,6 +4,10 @@
   padding: 20px;
   color: white;
   text-align: center;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
 }
 
 .app-header nav ul {
@@ -26,4 +30,6 @@
 
 .app-header nav ul li a:hover {
   text-decoration: underline;
-} 
+}
+
+/* Стили для компонента Header */ 

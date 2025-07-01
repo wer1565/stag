@@ -1,44 +1,75 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { getProducts } from '../api/api';
 import {
-  Grid,
   Card,
   CardContent,
   CardMedia,
   Typography,
   CardActionArea,
-  Pagination,
-  Stack,
   Modal,
   Box,
   Button,
+  CircularProgress,
 } from '@mui/material';
+import Masonry from '@mui/lab/Masonry';
 import { useCart } from '../context/CartContext';
+import '../css/ProductList.css';
 
 const ProductList = ({ category, search }) => {
   const [products, setProducts] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   // Для модального окна
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [open, setOpen] = useState(false);
 
   const { addToCart } = useCart();
+  const observer = useRef();
+  const pageSize = 8; // должно совпадать с PAGE_SIZE в DRF
 
+  // Сброс при смене фильтра/поиска
   useEffect(() => {
+    setProducts([]);
+    setPage(1);
+    setHasMore(true);
+  }, [category, search]);
+
+  // Загрузка товаров
+  useEffect(() => {
+    let ignore = false;
     const params = { page };
     if (category) params.category = category;
     if (search) params.search = search;
-    getProducts(params).then(data => {
-      setProducts(data.results || []);
-      setCount(data.count || 0);
-    });
+    setLoading(true);
+    getProducts(params)
+      .then(data => {
+        if (ignore) return;
+        setProducts(prev => page === 1 ? (data.results || []) : [...prev, ...(data.results || [])]);
+        setCount(data.count || 0);
+        setHasMore((data.results || []).length === pageSize);
+        setLoading(false);
+      })
+      .catch(() => {
+        setHasMore(false);
+        setLoading(false);
+      });
+    return () => { ignore = true; };
   }, [category, search, page]);
 
-  const handlePageChange = (event, value) => {
-    setPage(value);
-  };
+  // Intersection Observer для бесконечной прокрутки
+  const lastProductRef = useCallback(node => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new window.IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage(prev => prev + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [loading, hasMore]);
 
   const handleOpen = (product) => {
     setSelectedProduct(product);
@@ -50,13 +81,11 @@ const ProductList = ({ category, search }) => {
     setSelectedProduct(null);
   };
 
-  const pageSize = 8; // должно совпадать с PAGE_SIZE в DRF
-
   return (
     <>
-      <Grid container spacing={2}>
-        {products.map(product => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+      <Masonry columns={2} spacing={2}>
+        {products.map((product, idx) => (
+          <div key={product.id} ref={products.length - 1 === idx ? lastProductRef : undefined}>
             <Card>
               <CardActionArea onClick={() => handleOpen(product)}>
                 {product.image && (
@@ -80,20 +109,14 @@ const ProductList = ({ category, search }) => {
                 </CardContent>
               </CardActionArea>
             </Card>
-          </Grid>
+          </div>
         ))}
-      </Grid>
-      {count > pageSize && (
-        <Stack alignItems="center" sx={{ mt: 3 }}>
-          <Pagination
-            count={Math.ceil(count / pageSize)}
-            page={page}
-            onChange={handlePageChange}
-            color="primary"
-          />
-        </Stack>
+      </Masonry>
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <CircularProgress />
+        </Box>
       )}
-
       {/* Модальное окно с кнопкой "В корзину" */}
       <Modal open={open} onClose={handleClose}>
         <Box

@@ -3,6 +3,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Box, Typography, Button, List, ListItem, ListItemText, Alert } from '@mui/material';
 import { createOrder } from '../api/api';
+import '../css/Cart.css';
 
 const Cart = () => {
   const { cart, removeFromCart, clearCart } = useCart();

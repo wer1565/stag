@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getCategories } from '../api/api';
 import { Stack, Button } from '@mui/material';
+import './CategoryList.css';
 
 const CategoryList = ({ onSelect, selected }) => {
   const [categories, setCategories] = useState([]);
