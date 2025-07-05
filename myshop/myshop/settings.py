@@ -4,12 +4,11 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Импорт секретов
+from .config_secrets import SECRET_KEY, RECAPTCHA_SECRET_KEY, DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&**g#m$2buqq5k5gt2i0l++mofl*7cz$tx#*@7ttu3)!eyhe6_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -75,11 +74,11 @@ WSGI_APPLICATION = 'myshop.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'shop',         # имя вашей базы данных
-        'USER': 'postgres',         # имя пользователя
-        'PASSWORD': 'postgres', # пароль пользователя
-        'HOST': 'localhost',            # адрес сервера БД (обычно localhost)
-        'PORT': '5432',                 # порт PostgreSQL (по умолчанию 5432)
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
     }
 }
 

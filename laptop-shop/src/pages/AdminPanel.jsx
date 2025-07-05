@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { Container, Typography, Tabs, Tab, Box, Alert } from '@mui/material';
 import AdminProducts from './AdminProducts';
 import AdminOrders from './AdminOrders';
+import AdminUsers from './AdminUsers';
 
 function AdminPanel() {
   const { user } = useAuth();
@@ -32,7 +33,7 @@ function AdminPanel() {
         <AdminOrders />
       </Box>
       <Box hidden={tab !== 2}>
-        <Typography>Здесь будет управление пользователями</Typography>
+        <AdminUsers />
       </Box>
     </Container>
   );

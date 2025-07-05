@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { register } from '../api/api';
 import { Box, TextField, Button, Typography, Alert } from '@mui/material';
+
+const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -8,13 +11,18 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    if (!captchaToken) {
+      setError('Подтвердите, что вы не робот!');
+      return;
+    }
     try {
-      await register(username, password, email);
+      await register(username, password, email, captchaToken);
       setSuccess('Регистрация успешна! Теперь вы можете войти.');
     } catch {
       setError('Ошибка регистрации');
@@ -46,6 +54,11 @@ const Register = () => {
         onChange={e => setPassword(e.target.value)}
         fullWidth
         sx={{ mb: 2 }}
+      />
+      <ReCAPTCHA
+        sitekey={RECAPTCHA_SITE_KEY}
+        onChange={setCaptchaToken}
+        style={{ marginBottom: 16 }}
       />
       <Button type="submit" variant="contained" fullWidth>Зарегистрироваться</Button>
       {success && <Alert severity="success" sx={{ mt: 2 }}>{success}</Alert>}

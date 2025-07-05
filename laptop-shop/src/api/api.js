@@ -12,8 +12,8 @@ export const getCategories = async () => {
   return response.data;
 };
 
-export const register = async (username, password, email) => {
-  const response = await axios.post(`${API_URL}register/`, { username, password, email });
+export const register = async (username, password, email, recaptcha) => {
+  const response = await axios.post(`${API_URL}register/`, { username, password, email, recaptcha });
   return response.data;
 };
 
@@ -59,5 +59,29 @@ export const deleteProduct = async (id, token) => {
 export const updateOrder = async (id, data, token) => {
   const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
   const response = await axios.patch(`${API_URL}orders/${id}/`, data, config);
+  return response.data;
+};
+
+export const getUsers = async (token) => {
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  const response = await axios.get(`${API_URL}users/`, config);
+  return response.data;
+};
+
+export const deleteUser = async (id, token) => {
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  const response = await axios.delete(`${API_URL}users/${id}/`, config);
+  return response.data;
+};
+
+export const updateUser = async (id, data, token) => {
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  const response = await axios.patch(`${API_URL}users/${id}/`, data, config);
+  return response.data;
+};
+
+export const getProfile = async (token) => {
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  const response = await axios.get(`${API_URL}profile/`, config);
   return response.data;
 };
