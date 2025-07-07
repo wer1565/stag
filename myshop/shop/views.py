@@ -10,6 +10,9 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 import requests
 from django.conf import settings
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import serializers
 
 def verify_captcha(token):
     secret = settings.RECAPTCHA_SECRET_KEY  # теперь берём из настроек
@@ -21,6 +24,16 @@ def verify_captcha(token):
     r = requests.post(url, data=data)
     result = r.json()
     return result.get('success', False)
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        captcha_token = self.context['request'].data.get('recaptcha')
+        if not captcha_token or not verify_captcha(captcha_token):
+            raise serializers.ValidationError({'error': 'Капча не пройдена'})
+        return super().validate(attrs)
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()

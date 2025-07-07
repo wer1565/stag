@@ -5,6 +5,8 @@ import { Box, TextField, Button, Typography, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 
+const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
+
 const Login = () => {
   const { loginUser } = useAuth();
   const [username, setUsername] = useState('');
@@ -24,6 +26,7 @@ const Login = () => {
       const data = await login(username, password, captcha);
       loginUser(username, data.access);
       const profile = await getProfile(data.access);
+      console.log('PROFILE:', profile);
       if (profile.is_superuser) {
         navigate('/admin');
       } else {
@@ -54,7 +57,7 @@ const Login = () => {
       />
       <Box sx={{ mb: 2 }}>
         <ReCAPTCHA
-          sitekey="6Lc2gXgrAAAAAPClux4GkAys6h2-ptlOzTWvVB2G"
+          sitekey={RECAPTCHA_SITE_KEY}
           onChange={value => setCaptcha(value)}
         />
       </Box>

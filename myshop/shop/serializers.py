@@ -53,12 +53,15 @@ class OrderSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     email = serializers.ReadOnlyField(source='user.email')
     username = serializers.ReadOnlyField(source='user.username')
+    is_superuser = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
-        fields = ['first_name', 'last_name', 'phone_number', 'email', 'username']
-        read_only_fields = ['email', 'username']
+        fields = ['first_name', 'last_name', 'phone_number', 'email', 'username', 'is_superuser']
+        read_only_fields = ['email', 'username', 'is_superuser']
 
+    def get_is_superuser(self, obj):
+        return obj.user.is_superuser
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

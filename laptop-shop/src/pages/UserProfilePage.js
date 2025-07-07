@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Typography, Box, TextField, Button, List, ListItem, ListItemText, CircularProgress, Alert } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import './UserProfilePage.css';
+import '../css/UserProfilePage.css';
 
 function UserProfilePage() {
   const { user, token } = useAuth();
