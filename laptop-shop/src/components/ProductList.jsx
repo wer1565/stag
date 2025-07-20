@@ -147,6 +147,22 @@ const ProductList = ({ category, search }) => {
               <Typography variant="body1" gutterBottom>
                 {selectedProduct.description}
               </Typography>
+              {/* Таблица характеристик */}
+              {selectedProduct.specs && Object.keys(selectedProduct.specs).length > 0 && (
+                <Box sx={{ mt: 2, mb: 2 }}>
+                  <Typography variant="subtitle2" gutterBottom>Основные характеристики:</Typography>
+                  <table className="specs-table">
+                    <tbody>
+                      {Object.entries(selectedProduct.specs).map(([key, value]) => (
+                        <tr key={key}>
+                          <td>{key}</td>
+                          <td>{value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Box>
+              )}
               <Typography variant="subtitle1" color="primary" gutterBottom>
                 {selectedProduct.price} ₽
               </Typography>

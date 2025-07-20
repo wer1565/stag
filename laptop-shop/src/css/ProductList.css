@@ -1,1 +1,31 @@
 /* Стили для компонента ProductList */ 
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1em;
+}
+
+.specs-table td {
+  padding: 4px 8px;
+  vertical-align: top;
+}
+
+.specs-table tr {
+  border-bottom: 1px solid #eee;
+}
+
+.specs-table td:first-child {
+  color: #888;
+  font-weight: normal;
+  width: 60%;
+  text-align: left;
+}
+
+.specs-table td:last-child {
+  color: #222;
+  font-weight: bold;
+  text-align: right;
+  white-space: nowrap;
+  background: #fff;
+  padding-left: 10px;
+} 

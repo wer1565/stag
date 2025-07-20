@@ -49,13 +49,13 @@ def parse_and_save_products():
 
     for product_div in products_divs:
         # Название товара
-        # Используем более специфичный селектор на основе твоего лога
         name_tag = product_div.select_one('.catalog-item__row-block-info > div > a')
         name = name_tag.get_text(strip=True) if name_tag else "N/A"
 
-        # Отладочный вывод длины имени
-        if name != "N/A":
-            print(f"Извлечено имя: '{name}' (Длина: {len(name)})")
+        # Ссылка на карточку товара
+        product_url = None
+        if name_tag and name_tag.has_attr('href'):
+            product_url = urljoin(base_url, name_tag['href'])
 
         # Цена товара (извлекаем из data-price атрибута)
         price_div = product_div.find('div', class_='item-block_main-price')
@@ -75,36 +75,54 @@ def parse_and_save_products():
             try:
                 image_response = requests.get(image_url, stream=True) # Использование stream=True для больших файлов
                 image_response.raise_for_status()
-
-                # Создаем имя файла на основе URL
-                file_name = os.path.basename(image_url).split('?')[0] # Удаляем параметры запроса из имени файла
-                
-                # Открываем файл для записи
-                # Django ImageField ожидает путь относительно MEDIA_ROOT
-                # Сохраняем изображение во временный файл или ContentFile
-                # Для ImageField лучше использовать ContentFile или SavedFile
-                # Т.к. ImageField ожидает загруженный файл, а не просто путь
-                
-                # Проверяем, существует ли файл уже (для предотвращения дубликатов)
+                file_name = os.path.basename(image_url).split('?')[0]
                 full_path = os.path.join('products', file_name)
-
                 if not default_storage.exists(full_path):
                     img_content = ContentFile(image_response.content)
-                    # default_storage.save возвращает путь к файлу относительно MEDIA_ROOT
                     image_path = default_storage.save(full_path, img_content)
                     print(f"Изображение сохранено: {image_path}")
                 else:
-                    image_path = full_path # Используем существующий путь
+                    image_path = full_path
                     print(f"Изображение уже существует: {image_path}")
-
             except requests.exceptions.RequestException as e:
                 print(f"Ошибка при скачивании изображения {image_url}: {e}")
             except Exception as e:
                 print(f"Неожиданная ошибка при сохранении изображения: {e}")
 
-        # Описание и характеристики пока не парсим детально
+        # --- Новый код: парсинг описания и характеристик товара ---
         description = "Описание будет добавлено позже."
-        specs = {} # Характеристики пока пусты
+        specs = {}
+        if product_url:
+            try:
+                print(f"Парсим карточку товара: {product_url}")
+                product_resp = requests.get(product_url, headers=headers)
+                print(f"Статус ответа карточки: {product_resp.status_code}")
+                product_resp.raise_for_status()
+                product_soup = BeautifulSoup(product_resp.text, 'html.parser')
+                # Описание
+                desc_tag = product_soup.select_one(
+                    '#content > div.product > div.product_card.js-product-control-root > div.product_card__center-info-block > div.preview-characteristics'
+                )
+                if desc_tag:
+                    description = desc_tag.get_text(strip=True)
+                    print(f"Описание найдено: {description[:60]}...")
+                # Характеристики
+                specs_ul = product_soup.select_one('ul.preview-characteristics_wrapper')
+                if specs_ul:
+                    for li in specs_ul.select('li.preview-characteristics_item'):
+                        key_div = li.select_one('.dot-leaders_prop')
+                        value_div = li.select_one('.dot-leaders_value')
+                        key = key_div.get_text(strip=True) if key_div else ''
+                        value = value_div.get_text(strip=True) if value_div else ''
+                        if key and value:
+                            specs[key] = value
+                        print(f"key: {key}, value: {value}")
+                    print(f"Характеристик собрано: {len(specs)}")
+                else:
+                    print("НЕ нашли ul.preview-characteristics_wrapper")
+            except Exception as e:
+                print(f'Ошибка при парсинге описания/характеристик товара: {e}')
+        # --- Конец нового кода ---
 
         # Создаем или обновляем продукт
         product, created = Product.objects.get_or_create(
@@ -118,11 +136,10 @@ def parse_and_save_products():
             }
         )
         if not created:
-            # Обновляем, если товар уже существует, но только если изображение изменилось
-            # or product.image != image_path: # Это не сработает напрямую с ImageField
             if image_path and product.image != image_path:
                 product.image = image_path
             product.price = price
+            product.specs = specs  # теперь обновляем характеристики
             product.save()
             print(f"Обновлен товар: {name} - {price} BYN")
         else:
