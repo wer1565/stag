@@ -2,9 +2,17 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api/';
 
+// Создаем экземпляр axios с настройками таймаута
+const apiClient = axios.create({
+  timeout: 10000, // 10 секунд таймаут
+  headers: {
+    'Content-Type': 'application/json',
+  }
+});
+
 // Получить список товаров с возможностью передачи параметров (фильтрация, пагинация и т.д.)
 export const getProducts = async (params = {}) => {
-  const response = await axios.get(`${API_URL}products/`, { params });
+  const response = await apiClient.get(`${API_URL}products/`, { params });
   return response.data;
 };
 

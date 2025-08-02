@@ -24,9 +24,9 @@ const Login = () => {
     }
     try {
       const data = await login(username, password, captcha);
-      loginUser(username, data.access);
       const profile = await getProfile(data.access);
       console.log('PROFILE:', profile);
+      loginUser(username, data.access, profile.is_superuser);
       if (profile.is_superuser) {
         navigate('/admin');
       } else {

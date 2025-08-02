@@ -1,9 +1,2 @@
-/* Стили для компонента Footer */ 
-.app-footer {
-  width: 100%;
-  background: #f5f5f5;
-  text-align: center;
-  padding: 16px 0;
-  margin-top: auto;
-  /* Убедитесь, что нет position: fixed или absolute */
-} 
+/* Стили для компонента Footer - теперь использует Material-UI AppBar */
+/* Основные стили теперь управляются через Material-UI */ 

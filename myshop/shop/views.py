@@ -13,6 +13,7 @@ from django.conf import settings
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
+from .utils import send_order_status_notification
 
 def verify_captcha(token):
     secret = settings.RECAPTCHA_SECRET_KEY  # теперь берём из настроек
@@ -95,3 +96,20 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
+
+@api_view(['POST'])
+def send_order_notification(request, order_id):
+    """
+    Отправляет email уведомление для заказа (только для администраторов)
+    """
+    if not request.user.is_staff:
+        return Response({'error': 'Доступ запрещен'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        order = Order.objects.get(id=order_id)
+        send_order_status_notification(order)
+        return Response({'message': f'Email уведомление отправлено для заказа #{order_id}'}, status=status.HTTP_200_OK)
+    except Order.DoesNotExist:
+        return Response({'error': 'Заказ не найден'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': f'Ошибка отправки email: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -35,6 +35,11 @@ const ProductList = ({ category, search }) => {
     setProducts([]);
     setPage(1);
     setHasMore(true);
+    
+    // Очищаем observer при смене фильтра
+    if (observer.current) {
+      observer.current.disconnect();
+    }
   }, [category, search]);
 
   // Загрузка товаров
@@ -52,23 +57,42 @@ const ProductList = ({ category, search }) => {
         setHasMore((data.results || []).length === pageSize);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('API Error:', error);
         setHasMore(false);
         setLoading(false);
       });
     return () => { ignore = true; };
   }, [category, search, page]);
 
+  // Очистка observer при размонтировании
+  useEffect(() => {
+    return () => {
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+    };
+  }, []);
+
   // Intersection Observer для бесконечной прокрутки
   const lastProductRef = useCallback(node => {
     if (loading) return;
     if (observer.current) observer.current.disconnect();
-    observer.current = new window.IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage(prev => prev + 1);
-      }
-    });
-    if (node) observer.current.observe(node);
+    
+    try {
+      observer.current = new window.IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage(prev => prev + 1);
+        }
+      }, {
+        threshold: 0.1,
+        rootMargin: '100px'
+      });
+      
+      if (node) observer.current.observe(node);
+    } catch (error) {
+      console.error('Intersection Observer error:', error);
+    }
   }, [loading, hasMore]);
 
   const handleOpen = (product) => {
@@ -100,9 +124,6 @@ const ProductList = ({ category, search }) => {
                   <Typography gutterBottom variant="h6" component="div">
                     {product.name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {product.description}
-                  </Typography>
                   <Typography variant="subtitle1" color="primary">
                     {product.price} ₽
                   </Typography>
@@ -125,11 +146,13 @@ const ProductList = ({ category, search }) => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 400,
+            width: 320,
+            maxHeight: '80vh',
             bgcolor: 'background.paper',
             borderRadius: 2,
             boxShadow: 24,
-            p: 4,
+            p: 3,
+            overflow: 'auto',
           }}
         >
           {selectedProduct && (
@@ -138,14 +161,11 @@ const ProductList = ({ category, search }) => {
                 <img
                   src={selectedProduct.image}
                   alt={selectedProduct.name}
-                  style={{ width: '100%', marginBottom: 16, borderRadius: 8 }}
+                  style={{ width: '100%', maxHeight: 200, objectFit: 'contain', marginBottom: 12, borderRadius: 8 }}
                 />
               )}
               <Typography variant="h6" gutterBottom>
                 {selectedProduct.name}
-              </Typography>
-              <Typography variant="body1" gutterBottom>
-                {selectedProduct.description}
               </Typography>
               {/* Таблица характеристик */}
               {selectedProduct.specs && Object.keys(selectedProduct.specs).length > 0 && (

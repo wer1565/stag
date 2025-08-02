@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from PIL import Image
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from io import BytesIO
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 class Category(models.Model):
@@ -103,5 +103,29 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+# Сигнал для отправки email при изменении статуса заказа
+@receiver(pre_save, sender=Order)
+def send_order_status_email(sender, instance, **kwargs):
+    try:
+        # Получаем старый экземпляр заказа из базы данных
+        if instance.pk:  # Если заказ уже существует
+            old_instance = Order.objects.get(pk=instance.pk)
+            # Если статус изменился
+            if old_instance.status != instance.status:
+                # Импортируем функцию здесь, чтобы избежать циклических импортов
+                from .utils import send_order_status_notification
+                # Отправляем уведомление асинхронно
+                import threading
+                thread = threading.Thread(
+                    target=send_order_status_notification,
+                    args=(instance,)
+                )
+                thread.start()
+    except Order.DoesNotExist:
+        # Заказ новый, не отправляем уведомление
+        pass
+    except Exception as e:
+        print(f"Ошибка при отправке email уведомления: {e}")
 
 

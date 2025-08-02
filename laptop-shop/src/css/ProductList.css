@@ -2,11 +2,11 @@
 .specs-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 1em;
+  font-size: 0.85em;
 }
 
 .specs-table td {
-  padding: 4px 8px;
+  padding: 3px 6px;
   vertical-align: top;
 }
 

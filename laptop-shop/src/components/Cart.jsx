@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { Box, Typography, Button, List, ListItem, ListItemText, Alert } from '@mui/material';
+import { Box, Typography, Button, List, ListItem, ListItemText, Alert, IconButton } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 import { createOrder } from '../api/api';
 import '../css/Cart.css';
 
 const Cart = () => {
-  const { cart, removeFromCart, clearCart } = useCart();
+  const { cart, removeFromCart, clearCart, updateQuantity } = useCart();
   const { user, token } = useAuth();
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderError, setOrderError] = useState('');
@@ -46,10 +48,29 @@ const Cart = () => {
         )}
         {cart.map(item => (
           <ListItem key={item.id} secondaryAction={
-            <Button color="error" onClick={() => removeFromCart(item.id)}>Удалить</Button>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <IconButton 
+                size="small" 
+                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+              >
+                <RemoveIcon />
+              </IconButton>
+              <Typography variant="body2" sx={{ minWidth: 30, textAlign: 'center' }}>
+                {item.quantity}
+              </Typography>
+              <IconButton 
+                size="small" 
+                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+              >
+                <AddIcon />
+              </IconButton>
+              <Button color="error" onClick={() => removeFromCart(item.id)}>
+                Удалить
+              </Button>
+            </Box>
           }>
             <ListItemText
-              primary={`${item.name} x${item.quantity}`}
+              primary={item.name}
               secondary={`${item.price} ₽ за шт.`}
             />
           </ListItem>

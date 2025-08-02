@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { register } from '../api/api';
 import { Box, TextField, Button, Typography, Alert } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
@@ -12,6 +13,7 @@ const Register = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [captchaToken, setCaptchaToken] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +25,11 @@ const Register = () => {
     }
     try {
       await register(username, password, email, captchaToken);
-      setSuccess('Регистрация успешна! Теперь вы можете войти.');
+      setSuccess('Регистрация успешна! Перенаправляем на страницу входа...');
+      // Перенаправляем на страницу входа через 2 секунды
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } catch {
       setError('Ошибка регистрации');
     }

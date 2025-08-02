@@ -12,6 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { Container } from '@mui/material';
 import { useAuth } from './context/AuthContext';
 import AdminPanel from './pages/AdminPanel';
+import About from './components/About';
 
 function App() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -45,6 +46,7 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/about" element={<About />} />
         </Routes>
       </Container>
       <Footer />

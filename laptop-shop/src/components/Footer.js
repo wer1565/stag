@@ -1,11 +1,15 @@
 import React from 'react';
-import '../css/Footer.css'; // Предполагается, что вы создадите этот файл для стилей
+import { AppBar, Toolbar, Typography } from '@mui/material';
 
 function Footer() {
   return (
-    <footer className="app-footer">
-      <p>&copy; 2025 Ваш магазин. Все права защищены.</p>
-    </footer>
+    <AppBar position="static" sx={{ mt: 'auto' }}>
+      <Toolbar sx={{ justifyContent: 'center' }}>
+        <Typography variant="body2" color="inherit">
+          &copy; 2025 Ваш магазин. Все права защищены.
+        </Typography>
+      </Toolbar>
+    </AppBar>
   );
 }
 
